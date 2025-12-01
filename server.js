@@ -1,17 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const OpenAI = require('openai');
-const path = require('path'); // 引入路径处理模块
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
-// Render 会自动提供一个端口，如果没有就用 3000
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// 关键代码：告诉服务器，public 文件夹里的文件是静态资源（比如网页）
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 初始化 DeepSeek
@@ -23,12 +20,18 @@ const openai = new OpenAI({
 app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
-        console.log("收到消息:", message);
-        if (!message) return res.status(400).json({ error: "消息不能为空" });
+        console.log("收到主题:", message);
+        if (!message) return res.status(400).json({ error: "主题不能为空" });
 
         const completion = await openai.chat.completions.create({
             messages: [
-                { role: "system", content: "你是一个智能助手。" },
+                // ==========================================
+                // 核心修改：这里定义了 AI 的“诗人”人设
+                // ==========================================
+                { 
+                    role: "system", 
+                    content: "你是一位才华横溢的唐代诗人。用户的输入将是一个‘主题’。请你必须严格根据该主题，创作一首【七言绝句】。要求：1. 严格遵守七言绝句格式（共四句，每句七个字）。2. 讲究平仄押韵，意境优美。3. 直接输出诗句，不要带任何'好的'、'如下所示'等废话。4. 诗名自拟，格式为：\n《诗名》\n诗句..." 
+                },
                 { role: "user", content: message }
             ],
             model: "deepseek-chat",
@@ -39,15 +42,14 @@ app.post('/api/chat', async (req, res) => {
 
     } catch (error) {
         console.error('DeepSeek Error:', error);
-        res.status(500).json({ error: '服务器繁忙' });
+        res.status(500).json({ error: '诗人正在斟酌推敲，请稍后再试...' });
     }
 });
 
-// 如果用户访问根目录 '/'，就发送 index.html 给通过
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Poet Server is running on port ${port}`);
 });

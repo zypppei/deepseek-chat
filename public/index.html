@@ -3,114 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 助手 (修复版)</title>
-    <!-- 引入 marked 库用于美化输出 -->
+    <title>AI 七言绝句助手</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; height: 100vh; margin: 0; }
-        .chat-container { width: 100%; max-width: 800px; background: white; display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header { padding: 15px; text-align: center; border-bottom: 1px solid #ddd; font-weight: bold; }
-        #messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; line-height: 1.5; }
-        .user { background: #007bff; color: white; align-self: flex-end; }
-        .ai { background: #f1f0f0; color: black; align-self: flex-start; }
-        .input-area { padding: 20px; border-top: 1px solid #ddd; display: flex; gap: 10px; }
-        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:disabled { background: #ccc; }
-        /* 代码块样式 */
-        pre { background: #222; color: #fff; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        /* --- 古风基础样式 --- */
+        body {
+            background-color: #fdfbf7; /* 米宣纸色 */
+            /* 优先使用楷体，没有则宋体 */
+            font-family: "Kaiti SC", "STKaiti", "楷体", "Songti SC", serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            color: #4a4a4a;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: #fffef9;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.1); /* 棕色阴影 */
+            height: 100%;
+            border-left: 1px solid #e0d0c0;
+            border-right: 1px solid #e0d0c0;
+        }
+
+        .header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #8b4513; /* 深棕色边框 */
+            font-size: 24px;
+            font-weight: bold;
+            color: #8b4513;
+            letter-spacing: 5px;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background-image: radial-gradient(#e0d0c0 1px, transparent 1px);
+            background-size: 20px 20px; /* 增加一点底纹 */
+        }
+
+        /* 消息气泡 - 古风改造 */
+        .message {
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 8px;
+            line-height: 1.8;
+            font-size: 18px;
+            position: relative;
+        }
+
+        /* 用户消息 */
+        .user {
+            align-self: flex-end;
+            background-color: #8b4513;
+            color: #fff;
+            border-top-right-radius: 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* AI 诗人消息 */
+        .ai {
+            align-self: center; /* 诗句居中显示 */
+            background-color: #fff;
+            border: 1px solid #8b4513;
+            color: #333;
+            text-align: center; /* 文字居中 */
+            box-shadow: 3px 3px 0px rgba(139, 69, 19, 0.2);
+            min-width: 200px;
+        }
+
+        /* 输入区域 */
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #e0d0c0;
+            display: flex;
+            gap: 15px;
+            background: #fffef9;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #8b4513;
+            border-radius: 4px;
+            font-size: 16px;
+            background: transparent;
+            font-family: inherit;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #8b4513;
+            color: #fffcdb;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: #a0522d;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: wait;
+        }
     </style>
 </head>
 <body>
 
 <div class="chat-container">
-    <div class="header">Gemini 2.0 修复版</div>
+    <div class="header">七言绝句生成器</div>
+    
     <div id="messages">
-        <div class="message ai">也就是现在，试试看发消息给我？</div>
+        <div class="message ai">
+            请赐一题，待小生为您赋诗一首。
+        </div>
     </div>
+
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="输入消息..." />
-        <!-- 注意：onclick 这里必须完全匹配下面的函数名 -->
-        <button id="sendBtn" onclick="sendMessage()">发送</button>
+        <input type="text" id="userInput" placeholder="请输入题目（如：月亮、思乡、代码）..." autocomplete="off">
+        <button id="sendBtn" onclick="sendMessage()">赋诗</button>
     </div>
 </div>
 
 <script>
-    // --- 调试代码：检查 JS 是否成功加载 ---
-    console.log("JS 脚本已启动！如果没有看到这句话，说明代码有严重错误。");
-
     const messagesDiv = document.getElementById('messages');
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
 
-    // 核心函数：sendMessage
-    async function sendMessage() {
-        console.log("点击了发送按钮");
-        
-        const text = userInput.value.trim();
-        if (!text) {
-            alert("请输入内容！");
-            return;
-        }
+    // 回车发送
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
 
-        // 1. 显示用户消息
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. 显示用户输入
         addMessage(text, 'user');
         
-        // 2. 锁定界面
         userInput.value = '';
         sendBtn.disabled = true;
-        sendBtn.innerText = '发送中...';
+        sendBtn.innerText = '斟酌中...';
 
         try {
-            console.log("正在请求后端...");
-            // 发送请求给 Node.js 后端
+            // 2. 发送给后端
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text })
             });
 
-            console.log("后端响应状态:", response.status);
             const data = await response.json();
 
             if (data.error) {
-                addMessage("错误: " + data.error, 'ai');
+                addMessage("小生才思枯竭：" + data.error, 'ai');
             } else {
+                // 3. 显示诗句
                 addMessage(data.reply, 'ai');
             }
-        } catch (err) {
-            console.error("请求失败:", err);
-            addMessage("连接服务器失败，请确认终端里 'node server.js' 正在运行。", 'ai');
+
+        } catch (error) {
+            addMessage("网络连接不畅，请稍后再试。", 'ai');
         } finally {
-            // 3. 恢复界面
             sendBtn.disabled = false;
-            sendBtn.innerText = '发送';
-            userInput.focus();
+            sendBtn.innerText = '赋诗';
         }
     }
 
-    // 辅助函数：在屏幕上添加消息气泡
     function addMessage(text, sender) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
         
-        if (sender === 'ai' && typeof marked !== 'undefined') {
-            // 如果加载了 marked 库，就用它渲染 Markdown
-            div.innerHTML = marked.parse(text);
+        if (sender === 'ai') {
+            // 将换行符转换为 <br>，让诗句换行显示
+            div.innerHTML = text.replace(/\n/g, '<br>');
         } else {
-            // 否则直接显示文本
             div.textContent = text;
         }
         
         messagesDiv.appendChild(div);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-
-    // 回车键发送功能
-    userInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') sendMessage();
-    });
 </script>
 
 </body>
