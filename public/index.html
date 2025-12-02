@@ -2,217 +2,240 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>旺财 - 你的修勾朋友</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旺财的狗窝 🐶</title>
     <style>
-        /* --- 治愈系风格 --- */
+        /* --- 全局样式 --- */
         body {
-            background-color: #fff8e1; /* 暖淡黄色背景 */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            color: #333;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 500px;
-            background: #ffffff;
+            padding: 0;
+            background-color: #FFF8E1; /* 暖暖的米色背景 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            height: 100%;
+            height: 100vh; /* 占满屏幕高度 */
         }
 
-        /* 顶部狗狗形象区域 */
-        .header {
-            padding: 20px;
+        /* --- 顶部导航栏 --- */
+        header {
+            background-color: #FFB74D; /* 活泼的橙色 */
+            color: white;
+            padding: 15px;
             text-align: center;
-            background-color: #ffcc80; /* 橙色背景 */
-            position: relative;
-        }
-
-        .dog-avatar {
-            font-size: 60px; /* 大大的狗头 */
-            display: block;
-            margin-bottom: 5px;
-            animation: bounce 2s infinite; /* 让狗狗跳动 */
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .title-text { 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: #5d4037; 
-        }
-        
-        .logout-btn { 
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 12px; 
-            padding: 5px 12px; 
-            background: rgba(255,255,255,0.3); 
-            border: 1px solid #fff; 
-            border-radius: 20px;
-            color: #5d4037; 
-            cursor: pointer; 
-        }
-
-        #messages {
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            background: #fff;
-        }
-
-        /* 气泡样式 - 圆润可爱 */
-        .message { 
-            max-width: 80%; 
-            padding: 12px 18px; 
-            border-radius: 20px; 
-            line-height: 1.5; 
-            font-size: 16px; 
-        }
-
-        .user { 
-            align-self: flex-end; 
-            background-color: #ffcc80; 
-            color: #5d4037; 
-            border-bottom-right-radius: 5px;
-        }
-
-        .ai { 
-            align-self: flex-start; 
-            background-color: #f5f5f5; 
-            color: #333; 
-            border-bottom-left-radius: 5px;
-        }
-
-        .input-area { 
-            padding: 15px; 
-            border-top: 1px solid #eee; 
-            display: flex; 
-            gap: 10px; 
-            background: #fff;
-        }
-
-        input { 
-            flex: 1; 
-            padding: 12px 15px; 
-            border: 2px solid #ffcc80; 
-            border-radius: 25px; 
-            outline: none; 
-            font-size: 16px; 
-        }
-        
-        input:focus {
-            border-color: #ff9800;
-        }
-
-        button#sendBtn { 
-            padding: 0 25px; 
-            background-color: #ff9800; 
-            color: white; 
-            border: none; 
-            border-radius: 25px; 
-            cursor: pointer; 
+            font-size: 18px;
             font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
         }
 
-        button:disabled { background-color: #ffd180; }
+        /* --- 聊天内容区域 --- */
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto; /* 允许滚动 */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        /* --- 消息气泡基础样式 --- */
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 狗狗的消息样式 --- */
+        .message.dog {
+            align-self: flex-start;
+            background-color: #FFFFFF;
+            color: #4E342E;
+            border-bottom-left-radius: 4px;
+            margin-left: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        /* 狗狗头像装饰 */
+        .message.dog::before {
+            content: "🐶";
+            position: absolute;
+            left: -32px;
+            bottom: 0;
+            font-size: 24px;
+        }
+
+        /* --- 用户的消息样式 --- */
+        .message.user {
+            align-self: flex-end;
+            background-color: #FF9800; /* 深橙色 */
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 1px 3px rgba(255, 152, 0, 0.3);
+        }
+
+        /* --- 底部输入区域 --- */
+        .input-area {
+            background: white;
+            padding: 10px 15px;
+            border-top: 1px solid #FFE0B2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom)); /* 适配iPhone底部黑条 */
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #FFE0B2;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #FF9800;
+        }
+
+        button {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            white-space: nowrap;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button:disabled {
+            background-color: #FFCC80;
+            cursor: not-allowed;
+        }
+
+        /* --- 加载动画 --- */
+        .typing-indicator {
+            font-size: 12px;
+            color: #8D6E63;
+            margin-left: 10px;
+            display: none; /* 默认隐藏 */
+        }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="header">
-        <button class="logout-btn" onclick="logout()">退出</button>
-        <div class="dog-avatar">🐶</div>
-        <div class="title-text">旺财 (金毛版)</div>
-    </div>
-    
-    <div id="messages">
-        <div class="message ai">
-            汪！主人你回来啦！(拼命摇尾巴)<br>今天是想摸摸我，还是聊聊天呀？🦴
+    <header>
+        旺财的狗窝 🦴
+    </header>
+
+    <div id="chat-container">
+        <div class="message dog">
+            汪！主人你终于来啦！我等你好久了，快摸摸我！🐾
         </div>
     </div>
 
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="和狗狗说点什么..." autocomplete="off">
-        <button id="sendBtn" onclick="sendMessage()">发送</button>
+    <div class="typing-indicator" id="loading-text">
+        👃 旺财正在闻你的味道...
     </div>
-</div>
 
-<script>
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = '/login';
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="输入文字投喂..." autocomplete="off" />
+        <button id="send-btn">投喂</button>
+    </div>
 
-    function logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-    }
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const loadingText = document.getElementById('loading-text');
 
-    const messagesDiv = document.getElementById('messages');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
+        // 发送消息的主函数
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
 
-    userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+            // 1. 在界面上显示用户说的话
+            appendMessage(text, 'user');
+            userInput.value = ''; // 清空输入框
+            userInput.focus();
 
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
+            // 2. 显示加载状态
+            setLoading(true);
 
-        addMessage(text, 'user');
-        userInput.value = '';
-        sendBtn.disabled = true;
+            try {
+                // 3. 请求后端 API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
 
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token 
-                },
-                body: JSON.stringify({ message: text })
-            });
+                const data = await response.json();
 
-            if (response.status === 401 || response.status === 403) {
-                logout();
-                return;
+                // 4. 显示狗狗的回复
+                if (data.reply) {
+                    appendMessage(data.reply, 'dog');
+                } else {
+                    appendMessage("汪？我没听清... (接口返回错误)", 'dog');
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                appendMessage("嗷呜... 网络好像断了，联系不上主人了 😿", 'dog');
+            } finally {
+                setLoading(false);
             }
-
-            const data = await response.json();
-            if (data.error) {
-                addMessage("嗷呜... (出错啦：" + data.error + ")", 'ai');
-            } else {
-                addMessage(data.reply, 'ai');
-            }
-
-        } catch (error) {
-            addMessage("汪？网络好像断了...", 'ai');
-        } finally {
-            sendBtn.disabled = false;
         }
-    }
 
-    function addMessage(text, sender) {
-        const div = document.createElement('div');
-        div.className = `message ${sender}`;
-        div.innerHTML = sender === 'ai' ? text.replace(/\n/g, '<br>') : text;
-        messagesDiv.appendChild(div);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-</script>
+        // 辅助函数：向聊天框添加一条消息
+        function appendMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.textContent = text;
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
 
+        // 辅助函数：滚动到底部
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 辅助函数：控制加载状态显示
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loadingText.style.display = 'block';
+                sendBtn.disabled = true;
+                sendBtn.textContent = '...';
+            } else {
+                loadingText.style.display = 'none';
+                sendBtn.disabled = false;
+                sendBtn.textContent = '投喂';
+                scrollToBottom();
+            }
+        }
+
+        // 绑定点击事件
+        sendBtn.addEventListener('click', sendMessage);
+
+        // 绑定回车键事件
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
 </body>
 </html>

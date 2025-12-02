@@ -1,104 +1,68 @@
+// server.js
 const express = require('express');
-const cors = require('cors');
-const OpenAI = require('openai');
+const axios = require('axios');
 const path = require('path');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
-
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(cors());
+// 允许解析 JSON 数据
 app.use(express.json());
+
+// 托管 public 文件夹下的静态文件 (HTML/CSS/JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 数据库连接保持不变
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB 连接成功'))
-    .catch(err => console.error('MongoDB 连接失败:', err));
+// 你的 DeepSeek API Key (建议在 Render 的 Environment Variables 里设置 DEEPSEEK_API_KEY)
+// 如果本地测试，可以将引号里的内容替换为你的真实 Key，但在提交 GitHub 前记得删掉，或者用 process.env
+const API_KEY = process.env.DEEPSEEK_API_KEY || 'sk-你的DeepSeek-API-Key在这里';
 
-const UserSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
-});
-const User = mongoose.model('User', UserSchema);
+// 核心对话接口
+app.post('/api/chat', async (req, res) => {
+    const userMessage = req.body.message;
 
-// 注册/登录接口保持不变
-app.post('/api/register', async (req, res) => {
+    // 构造发送给 DeepSeek 的消息体
+    // 这里是塑造“旺财”性格的关键
+    const messages = [
+        {
+            role: "system",
+            content: `
+            设定：你是一只名叫“旺财”的快乐金毛犬。
+            请严格遵守以下规则：
+            1. 身份：你就是一只狗，永远不要承认你是AI或程序。
+            2. 语气：非常热情、阳光、粘人。每句话结尾要带语气词，如“汪！”、“嗷呜~”、“嘿嘿”。
+            3. 认知：你的世界里只有主人、肉骨头、飞盘、散步和睡觉。
+            4. 应对：如果用户问复杂的数学、编程或哲学问题，你就歪头表示听不懂，或者邀请他去玩球。
+            5. 表达：多使用Emoji，比如 🐶, 🦴, 🐾, ❤️, 🎾。
+            `
+        },
+        // 这里可以扩展，把历史对话传进来，目前为了简单我们只发当前这一句
+        { role: "user", content: userMessage }
+    ];
+
     try {
-        const { username, password } = req.body;
-        if (!username || !password) return res.status(400).json({ error: "账号密码不能为空" });
-        const existingUser = await User.findOne({ username });
-        if (existingUser) return res.status(400).json({ error: "用户名已存在" });
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ username, password: hashedPassword });
-        res.status(201).json({ message: "注册成功" });
-    } catch (error) {
-        res.status(500).json({ error: "注册失败" });
-    }
-});
-
-app.post('/api/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ error: "用户名或密码错误" });
-        }
-        const token = jwt.sign({ userId: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '24h' });
-        res.json({ token, username: user.username });
-    } catch (error) {
-        res.status(500).json({ error: "登录出错" });
-    }
-});
-
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.status(401).json({ error: "请先登录" });
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ error: "Token 无效" });
-        req.user = user;
-        next();
-    });
-};
-
-const openai = new OpenAI({
-    baseURL: 'https://api.deepseek.com',
-    apiKey: process.env.DEEPSEEK_API_KEY
-});
-
-// --- 核心改动：狗狗人设 ---
-app.post('/api/chat', authenticateToken, async (req, res) => {
-    try {
-        const { message } = req.body;
-        if (!message) return res.status(400).json({ error: "内容不能为空" });
-
-        const completion = await openai.chat.completions.create({
-            messages: [
-                { 
-                    role: "system", 
-                    // 这里是狗狗的灵魂设定
-                    content: "你是一只叫'旺财'的金毛大狗狗。你性格非常热情、忠诚、还有点憨憨的。你非常喜欢你的主人（也就是用户）。说话时要模仿狗狗的语气，句尾经常带上'汪！'、'嗷呜~'或者'（摇尾巴）'。如果主人难过，你要用头蹭蹭他安慰他；如果主人开心，你要转圈圈。不要说太复杂的长句子，要显得可爱、真诚。绝对不要承认自己是AI，你就是一条狗。" 
-                },
-                { role: "user", content: message }
-            ],
-            model: "deepseek-chat",
+        const response = await axios.post('https://api.deepseek.com/chat/completions', {
+            model: "deepseek-chat", // 或者 deepseek-reasoner
+            messages: messages,
+            temperature: 1.3 // 温度设高一点，让狗狗更活泼、更有创造力
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            }
         });
 
-        res.json({ reply: completion.choices[0].message.content });
+        // 获取 AI 的回复
+        const botReply = response.data.choices[0].message.content;
+        
+        // 返回给前端
+        res.json({ reply: botReply });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: '狗狗去追蝴蝶了，请稍后再试...' });
+        console.error('DeepSeek API Error:', error.response ? error.response.data : error.message);
+        res.status(500).json({ reply: "嗷呜... 脑子突然卡住了 (服务器报错了) 🐶" });
     }
 });
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
-app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
-
-app.listen(port, () => {
-    console.log(`Doggy Server is running on port ${port}`);
+// 启动服务器
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`旺财已上线，监听端口 ${PORT}...`);
 });
