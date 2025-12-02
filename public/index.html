@@ -9,16 +9,47 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #FFF9C4; /* 柠檬黄背景，更明亮 */
+            background-color: #FFF9C4;
             font-family: "Muli", "Rounded Mplus 1c", "幼圆", sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            user-select: none; /* 防止双击选中文字 */
+            user-select: none;
         }
 
-        /* --- 顶部栏 --- */
+        /* --- 全屏强反馈遮罩 --- */
+        .fullscreen-feedback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 32px;
+            opacity: 0;
+            pointer-events: none; /* 默认不阻挡鼠标 */
+            transition: opacity 0.3s ease;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .fullscreen-feedback.show {
+            opacity: 1;
+            pointer-events: auto; /* 显示时阻挡操作 */
+        }
+        .fullscreen-feedback .emoji { font-size: 80px; margin-bottom: 20px; }
+
+        /* 成功-绿色 */
+        #overlay-success { background: rgba(76, 175, 80, 0.85); }
+        /* 失败-红色 */
+        #overlay-fail { background: rgba(244, 67, 54, 0.85); }
+
+
         header {
             padding: 15px;
             text-align: center;
@@ -36,9 +67,37 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            /* 地板效果 */
-            background: radial-gradient(ellipse at center bottom, #FFFDE7 0%, transparent 70%); 
+            background: radial-gradient(ellipse at center bottom, #FFFDE7 0%, transparent 70%);
+            overflow: hidden; /* 防止萤火虫飞出去 */
         }
+
+        /* --- 萤火虫 --- */
+        #firefly {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FFEB3B;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #FFEB3B, 0 0 20px #FBC02D;
+            top: 30%;
+            left: 50%;
+            opacity: 0; /* 默认隐藏 */
+            z-index: 4;
+            transition: opacity 0.3s;
+        }
+        /* 萤火虫飞舞动画 */
+        #firefly.flying {
+            opacity: 1;
+            animation: fly-anim 2s infinite alternate ease-in-out;
+        }
+        @keyframes fly-anim {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-50px, -30px) scale(1.1); }
+            50% { transform: translate(40px, 20px) scale(0.9); }
+            75% { transform: translate(-30px, 40px) scale(1.2); }
+            100% { transform: translate(20px, -20px) scale(1); }
+        }
+
 
         /* --- 狗狗本体 --- */
         .dog-wrapper {
@@ -46,47 +105,48 @@
             cursor: pointer;
             transition: transform 0.1s;
         }
+        /* 狗狗追逐动画 */
+        .dog-wrapper.chasing {
+            animation: chase-anim 0.8s infinite alternate ease-in-out;
+        }
+        @keyframes chase-anim {
+            0% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-30px) rotate(-5deg); }
+            75% { transform: translateX(30px) rotate(5deg); }
+            100% { transform: translateX(0) rotate(0deg); }
+        }
         
-        /* 狗狗图片容器 */
         .dog-avatar {
             width: 220px;
             height: 220px;
-            /* 使用更生动的柯基插图 */
-            background-image: url('https://cdn-icons-png.flaticon.com/512/2395/2395796.png'); 
+            /* 换成了更清晰的柴犬图片 */
+            background-image: url('https://cdn-icons-png.flaticon.com/512/1864/1864514.png'); 
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             z-index: 5;
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
-            animation: breathe 3s ease-in-out infinite; /* 呼吸动画 */
+            animation: breathe 3s ease-in-out infinite;
         }
 
-        /* 点击时的按压效果 */
         .dog-wrapper:active .dog-avatar {
             transform: scale(0.95) translateY(5px);
         }
 
-        /* 动画：开心跳跃 */
-        .jump {
-            animation: jump-anim 0.6s ease !important;
-        }
+        .jump { animation: jump-anim 0.6s ease !important; }
         @keyframes jump-anim {
             0% { transform: translateY(0); }
             50% { transform: translateY(-30px) scale(1.05); }
             100% { transform: translateY(0); }
         }
 
-        /* 动画：思考摇摆 */
-        .thinking {
-            animation: shake-anim 0.5s ease-in-out infinite !important;
-        }
+        .thinking { animation: shake-anim 0.5s ease-in-out infinite !important; }
         @keyframes shake-anim {
             0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-5deg); }
-            75% { transform: rotate(5deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
         }
 
-        /* 呼吸动画 */
         @keyframes breathe {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); }
@@ -95,9 +155,9 @@
         /* --- 对话气泡 --- */
         #speech-bubble {
             position: absolute;
-            top: -140px; /* 在狗狗头顶上方 */
+            top: -140px;
             left: 50%;
-            transform: translateX(-50%) scale(0); /* 默认隐藏 */
+            transform: translateX(-50%) scale(0);
             background: white;
             padding: 15px 20px;
             border-radius: 20px;
@@ -112,13 +172,10 @@
             opacity: 0;
             z-index: 10;
         }
-        
         #speech-bubble.show {
             transform: translateX(-50%) scale(1);
             opacity: 1;
         }
-
-        /* 气泡尖角 */
         #speech-bubble::after {
             content: '';
             position: absolute;
@@ -130,7 +187,6 @@
             border-color: #FBC02D transparent transparent;
         }
 
-        /* --- 飘落的爱心特效 --- */
         .heart {
             position: absolute;
             color: #FF5252;
@@ -147,15 +203,26 @@
         /* --- 底部控制区 --- */
         .controls {
             background: white;
-            padding: 15px 15px 30px 15px; /* 底部多留点白适配手机 */
+            padding: 15px 15px 30px 15px;
             border-radius: 30px 30px 0 0;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             gap: 15px;
+            position: relative; /* 为了loading遮罩定位 */
         }
 
-        /* 快捷动作按钮栏 */
+        /* 控制区锁定遮罩 */
+        #controls-lock {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.6);
+            z-index: 20;
+            border-radius: 30px 30px 0 0;
+            display: none; /* 默认隐藏 */
+        }
+        #controls-lock.locked { display: block; }
+
         .action-bar {
             display: flex;
             justify-content: space-around;
@@ -173,6 +240,7 @@
             font-weight: bold;
             cursor: pointer;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 5px;
@@ -182,9 +250,8 @@
             transform: scale(0.95);
             background-color: #FFE0B2;
         }
-        .action-btn span { font-size: 18px; }
+        .action-btn span { font-size: 22px; }
 
-        /* 输入框区域 */
         .input-group {
             display: flex;
             gap: 10px;
@@ -218,25 +285,34 @@
 </head>
 <body>
 
+    <div id="overlay-success" class="fullscreen-feedback">
+        <div class="emoji">🎉✨</div>
+        <div>抓到萤火虫啦！</div>
+    </div>
+    <div id="overlay-fail" class="fullscreen-feedback">
+        <div class="emoji">💨🍃</div>
+        <div>哎呀，飞走了...</div>
+    </div>
+
     <header>✨ 虫子的狗窝 ✨</header>
 
     <div id="stage">
-        <div class="dog-wrapper" id="dog-wrapper" onclick="petDog()">
-            <div id="speech-bubble">汪！快陪我玩！🎾</div>
+        <div id="firefly"></div> <div class="dog-wrapper" id="dog-wrapper" onclick="petDog()">
+            <div id="speech-bubble">汪！我是虫子！<br>点我身体可以摸摸哦~ 🐶</div>
             <div class="dog-avatar" id="dog"></div>
         </div>
     </div>
 
     <div class="controls">
-        <div class="action-bar">
+        <div id="controls-lock"></div> <div class="action-bar">
             <button class="action-btn" onclick="triggerAction('喂肉肉', '🍖')">
-                <span>🍖</span> 喂食
+                <span>🍖</span>喂食
             </button>
             <button class="action-btn" onclick="triggerAction('扔飞盘', '🥏')">
-                <span>🥏</span> 玩球
+                <span>🥏</span>玩球
             </button>
-            <button class="action-btn" onclick="triggerAction('摸摸头', '👋')">
-                <span>👋</span> 摸摸
+            <button class="action-btn" onclick="startCatchingFirefly()">
+                <span>🦟</span>抓虫
             </button>
         </div>
 
@@ -251,137 +327,147 @@
         const dogAvatar = document.getElementById('dog');
         const bubble = document.getElementById('speech-bubble');
         const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const actionBtns = document.querySelectorAll('.action-btn');
+        const controlsLock = document.getElementById('controls-lock');
+        const firefly = document.getElementById('firefly');
+        const overlaySuccess = document.getElementById('overlay-success');
+        const overlayFail = document.getElementById('overlay-fail');
 
-        let isThinking = false;
+        let isBusy = false;
 
-        // 1. 初始化显示
-        setTimeout(() => {
-            showBubble("我是虫子！点击我身体可以摸我哦~ 🐶");
-        }, 800);
+        // 初始化
+        setTimeout(() => { bubble.classList.add('show'); }, 800);
 
-        // 2. 摸狗狗的效果 (纯前端特效)
-        function petDog() {
-            if (isThinking) return;
-            
-            // 狗狗跳一下
-            dogAvatar.classList.remove('jump');
-            void dogAvatar.offsetWidth; // 触发重绘
-            dogAvatar.classList.add('jump');
+        // --- 核心新功能：抓萤火虫 ---
+        function startCatchingFirefly() {
+            if (isBusy) return;
+            setBusy(true); // 锁定操作
 
-            // 爆出爱心
-            createHeart();
-            createHeart();
-            createHeart();
+            // 1. 开始动画
+            showBubble("汪！有虫子！别跑！🦟");
+            firefly.classList.add('flying'); // 显示萤火虫
+            dogWrapper.classList.add('chasing'); // 狗狗开始追
 
-            // 如果气泡是空的或者消失了，显示一句撒娇
-            if (!bubble.classList.contains('show')) {
-                showBubble("嘿嘿，好舒服~ ❤️");
-            }
+            // 2. 追逐一段时间后出结果 (比如 2秒)
+            setTimeout(() => {
+                // 计算概率：30% 成功
+                const isCaught = Math.random() < 0.3;
+
+                // 停止动画
+                firefly.classList.remove('flying');
+                dogWrapper.classList.remove('chasing');
+                bubble.classList.remove('show'); // 隐藏气泡
+
+                // 3. 显示全屏强反馈
+                if (isCaught) {
+                    overlaySuccess.classList.add('show');
+                    // (可选) 可以在这里悄悄发个请求告诉AI抓到了
+                } else {
+                    overlayFail.classList.add('show');
+                    // (可选) 可以在这里悄悄发个请求告诉AI没抓到
+                }
+
+                // 4. 反馈显示一段时间后恢复状态 (比如 2秒)
+                setTimeout(() => {
+                    overlaySuccess.classList.remove('show');
+                    overlayFail.classList.remove('show');
+                    
+                    // 恢复气泡并解除锁定
+                    if (isCaught) {
+                        showBubble("嘿嘿，抓到啦！厉不厉害！✨");
+                        dogJump();
+                    } else {
+                        showBubble("嗷呜... 好累，下次一定抓住...");
+                    }
+                    setBusy(false); // 解锁操作
+
+                }, 2000);
+
+            }, 2000); // 追逐时长
         }
 
-        // 3. 触发快捷动作 (发送特定指令给AI)
+
+        // --- 原有功能 ---
+
+        function petDog() {
+            if (isBusy) return;
+            dogJump();
+            createHeart(); createHeart(); createHeart();
+            if (!bubble.classList.contains('show')) showBubble("嘿嘿，好舒服~ ❤️");
+        }
+
         function triggerAction(actionName, emoji) {
-            if (isThinking) return;
-            // 模拟用户发了“我给你喂肉肉”这样的指令
+            if (isBusy) return;
             handleNetworkRequest(`主人对我做了动作：${actionName}。请根据这个动作做出反应。`);
-            
-            // 界面上立刻给点反馈
             showBubble(`${emoji} 收到！等待虫子反应...`);
         }
 
-        // 4. 发送自定义文字
         function sendCustomMessage() {
             const text = userInput.value.trim();
-            if (!text || isThinking) return;
-            
+            if (!text || isBusy) return;
             handleNetworkRequest(text);
             userInput.value = '';
         }
 
-        // 5. 核心网络请求函数
         async function handleNetworkRequest(messageText) {
-            setLoading(true);
-            
+            setBusy(true);
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: messageText })
                 });
-
                 const data = await response.json();
-                
                 if (data.reply) {
                     showBubble(data.reply);
-                    // 收到回复时，狗狗开心跳一下
-                    dogAvatar.classList.remove('jump');
-                    void dogAvatar.offsetWidth;
-                    dogAvatar.classList.add('jump');
+                    dogJump();
                 } else {
                     showBubble("汪？刚才走神了...");
                 }
-
             } catch (error) {
                 showBubble("嗷呜... 网络断开了 😿");
             } finally {
-                setLoading(false);
+                setBusy(false);
             }
         }
 
-        // --- 辅助特效函数 ---
+        // --- 辅助函数 ---
 
         function showBubble(text) {
-            bubble.textContent = text;
+            bubble.innerHTML = text; // 使用innerHTML支持换行
             bubble.classList.add('show');
-            
-            // 5秒后自动隐藏气泡，防止一直挡着
-            // clearTimeout(window.bubbleTimer);
-            // window.bubbleTimer = setTimeout(() => {
-            //     bubble.classList.remove('show');
-            // }, 8000);
         }
 
-        function setLoading(loading) {
-            isThinking = loading;
-            sendBtn.disabled = loading;
-            actionBtns.forEach(btn => btn.disabled = loading);
+        function dogJump() {
+            dogAvatar.classList.remove('jump');
+            void dogAvatar.offsetWidth;
+            dogAvatar.classList.add('jump');
+        }
 
-            if (loading) {
-                dogAvatar.classList.add('thinking'); // 开始摇摆思考
-                bubble.textContent = "🤔 思考中...";
-                bubble.classList.add('show');
+        // 设置忙碌状态（锁定所有操作）
+        function setBusy(busy) {
+            isBusy = busy;
+            if (busy) {
+                controlsLock.classList.add('locked');
+                if (bubble.textContent.includes("思考中")) {
+                   dogAvatar.classList.add('thinking');
+                }
             } else {
-                dogAvatar.classList.remove('thinking'); // 停止摇摆
+                controlsLock.classList.remove('locked');
+                dogAvatar.classList.remove('thinking');
             }
         }
 
-        // 创建飘落的小爱心
         function createHeart() {
             const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.textContent = '❤️';
-            
-            // 随机位置
+            heart.classList.add('heart'); heart.textContent = '❤️';
             const rect = dogWrapper.getBoundingClientRect();
-            const randomX = (Math.random() - 0.5) * 100;
-            
-            heart.style.left = (rect.width / 2 + randomX) + 'px';
+            heart.style.left = (rect.width / 2 + (Math.random() - 0.5) * 100) + 'px';
             heart.style.top = (rect.height / 2) + 'px';
-            
             dogWrapper.appendChild(heart);
-
-            // 动画结束后删除元素
-            setTimeout(() => {
-                heart.remove();
-            }, 1000);
+            setTimeout(() => heart.remove(), 1000);
         }
 
-        // 回车发送
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendCustomMessage();
-        });
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendCustomMessage(); });
 
     </script>
 </body>
