@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我的虫子进化论 🐛</title>
     <style>
-        /* --- 基础环境 --- */
+        /* --- 1. 基础环境设置 --- */
         body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%); /* 清新的森林绿背景 */
+            /* 背景：清新的草地渐变 */
+            background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 100%); 
             font-family: "Muli", "幼圆", sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            user-select: none;
+            user-select: none; /* 禁止选中文字 */
         }
 
-        /* --- 顶部状态栏 --- */
+        /* --- 2. 顶部状态栏 --- */
         .status-bar {
             padding: 15px;
             display: flex;
@@ -30,7 +31,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
-        /* 能量条容器 */
         .energy-wrapper {
             flex: 1;
             margin-left: 15px;
@@ -61,15 +61,15 @@
             font-weight: bold;
         }
 
-        /* --- 游戏大舞台 --- */
+        /* --- 3. 游戏舞台 (点击区域) --- */
         #stage {
             flex: 1;
             position: relative;
-            cursor: crosshair; /* 提示可以点击 */
+            cursor: crosshair;
             overflow: hidden;
         }
 
-        /* 点击时的波纹效果 */
+        /* 点击波纹特效 */
         .ripple {
             position: absolute;
             width: 20px;
@@ -85,17 +85,17 @@
             100% { width: 100px; height: 100px; opacity: 0; }
         }
 
-        /* --- 主角：虫子 --- */
+        /* --- 4. 主角设置 (核心修改区) --- */
         #hero-wrapper {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100px;
+            width: 100px;  /* 默认大小 */
             height: 100px;
-            transform: translate(-50%, -50%); /* 中心锚点 */
-            transition: top 1s linear, left 1s linear; /* 移动平滑过渡 */
+            transform: translate(-50%, -50%);
+            transition: top 1s linear, left 1s linear; /* 移动平滑 */
             z-index: 5;
-            pointer-events: none; /* 让点击穿透给stage，除非点的是特定交互区 */
+            pointer-events: none; 
         }
 
         .hero-body {
@@ -104,13 +104,15 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            /* 默认是毛毛虫 */
-            background-image: url('https://cdn-icons-png.flaticon.com/512/3065/3065664.png'); 
+            
+            /* 🔥🔥🔥 这里的 bug.png 对应你上传的虫子图片 🔥🔥🔥 */
+            background-image: url('./bug.png'); 
+            
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
             transition: transform 0.3s;
         }
 
-        /* 蠕动动画 */
+        /* 虫子蠕动动画 */
         .crawling .hero-body {
             animation: squirm 0.5s infinite alternate;
         }
@@ -119,13 +121,15 @@
             100% { transform: scaleX(0.9) scaleY(1.1); }
         }
 
-        /* 蝴蝶形态 */
+        /* 🦋 蝴蝶形态样式 */
         .butterfly-mode .hero-body {
-            background-image: url('https://cdn-icons-png.flaticon.com/512/2970/2970792.png');
-            width: 150px;
-            height: 150px;
-            margin-left: -25px;
-            margin-top: -25px;
+            /* 🔥🔥🔥 这里的 butterfly.png 对应你上传的蝴蝶图片 🔥🔥🔥 */
+            background-image: url('./butterfly.png');
+            
+            width: 160px; /* 蝴蝶变大一点 */
+            height: 160px;
+            margin-left: -30px; /* 修正中心点 */
+            margin-top: -30px;
             animation: fly 0.2s infinite alternate !important;
         }
         @keyframes fly {
@@ -133,7 +137,7 @@
             100% { transform: scaleX(0.8); }
         }
 
-        /* --- 对话气泡 --- */
+        /* --- 5. 对话气泡 --- */
         #bubble {
             position: absolute;
             top: -80px;
@@ -149,6 +153,7 @@
             opacity: 0;
             transition: all 0.3s;
             pointer-events: none;
+            z-index: 20;
         }
         #bubble.show { transform: translateX(-50%) scale(1); opacity: 1; }
         #bubble::after {
@@ -156,7 +161,7 @@
             border-width: 10px 8px 0; border-style: solid; border-color: white transparent transparent;
         }
 
-        /* --- 萤火虫 --- */
+        /* --- 6. 萤火虫 (猎物) --- */
         #firefly {
             position: absolute;
             width: 25px; height: 25px;
@@ -165,12 +170,12 @@
             box-shadow: 0 0 15px #FFEB3B;
             opacity: 0;
             pointer-events: none;
-            transition: top 0.5s, left 0.5s; /* 飞行动画 */
+            transition: top 0.5s, left 0.5s;
             z-index: 4;
         }
         #firefly.active { opacity: 1; }
 
-        /* --- 底部控制栏 --- */
+        /* --- 7. 底部控制栏 --- */
         .controls {
             background: white;
             padding: 15px;
@@ -242,7 +247,7 @@
             <button class="action-btn" onclick="startHunt(event)">🦟 抓萤火虫</button>
         </div>
         <div class="input-row">
-            <input type="text" id="input-box" placeholder="和虫子聊聊梦想...">
+            <input type="text" id="input-box" placeholder="和虫子聊聊梦想..." autocomplete="off">
             <button class="send-btn" onclick="chat()">➤</button>
         </div>
     </div>
@@ -258,7 +263,6 @@
 
         // 状态变量
         let energy = 20; // 0-100
-        let isMoving = false;
         let isButterfly = false;
         let isBusy = false; // 锁定操作
         
@@ -270,69 +274,67 @@
         updateEnergyUI();
         showBubble("点屏幕任意地方，我会爬过去哦~ 🐛");
 
-        // --- 核心功能1：点击屏幕移动 (指哪爬哪) ---
+        // --- 功能1：点击屏幕移动 (指哪爬哪) ---
         function moveHero(e) {
             if (isBusy) return;
 
-            // 1. 获取点击位置
+            // 获取点击位置
             const rect = stage.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // 2. 创建点击波纹特效
+            // 波纹特效
             createRipple(e.clientX, e.clientY);
 
-            // 3. 计算百分比位置
+            // 计算百分比
             const targetXPct = (x / rect.width) * 100;
             const targetYPct = (y / rect.height) * 100;
 
-            // 4. 计算旋转角度 (让虫子头朝向目标)
-            // 简单的数学计算：dx, dy
+            // 计算角度 (让头朝向目标)
             const dx = targetXPct - currentX;
             const dy = targetYPct - currentY;
             const angle = Math.atan2(dy, dx) * (180 / Math.PI);
             
-            // 修正角度：假设图片原本头朝右(0度)，如果是蝴蝶可能需要调整
+            // 修正角度：蝴蝶和虫子可能需要不同的旋转修正
             const rotation = angle + (isButterfly ? 90 : 0); 
 
+            // 应用旋转
             heroWrapper.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
-            // 5. 开始移动
+            // 移动
             const distance = Math.sqrt(dx*dx + dy*dy);
-            const speed = isButterfly ? 0.5 : 1.5; // 蝴蝶飞得快，虫子爬得慢
-            const duration = distance * 0.05 * speed; // 动态计算时间
+            const speed = isButterfly ? 0.5 : 1.5; // 蝴蝶飞得快，虫子慢
+            const duration = distance * 0.05 * speed; 
 
             heroWrapper.style.transition = `top ${duration}s linear, left ${duration}s linear`;
             heroWrapper.style.left = targetXPct + '%';
             heroWrapper.style.top = targetYPct + '%';
             
-            // 更新当前坐标记录
             currentX = targetXPct;
             currentY = targetYPct;
 
             // 播放动作动画
             if (!isButterfly) heroWrapper.classList.add('crawling');
 
-            // 移动结束后的回调
             setTimeout(() => {
                 heroWrapper.classList.remove('crawling');
             }, duration * 1000);
         }
 
-        // --- 核心功能2：喂食与进化系统 ---
+        // --- 功能2：喂食与进化 ---
         function feed(e) {
-            e.stopPropagation(); // 防止触发移动
+            e.stopPropagation();
             if (isBusy) return;
 
             if (isButterfly) {
-                showBubble("我已经成仙了，不吃叶子啦！✨");
+                showBubble("我已经成仙了，只喝露水~ ✨");
                 return;
             }
 
             showBubble("吧唧吧唧... 好嫩的叶子！🍃");
             changeEnergy(20);
             
-            // 喂食特效：简单的放大缩小
+            // 喂食反馈动画
             heroBody.style.transform = "scale(1.2)";
             setTimeout(() => heroBody.style.transform = "scale(1)", 200);
             
@@ -344,7 +346,6 @@
             if (energy > 100) energy = 100;
             updateEnergyUI();
 
-            // 进化判定
             if (energy >= 100 && !isButterfly) {
                 evolve();
             }
@@ -358,22 +359,34 @@
 
         // 🦋 破茧成蝶逻辑
         function evolve() {
-            isBusy = true; // 进化时不能操作
+            isBusy = true; 
             showBubble("能量满了！我要变身了！✨");
             
-            // 1. 结茧阶段
+            // 阶段1：结茧 (用 Emoji 替代图片，防止报错)
             setTimeout(() => {
                 stateText.innerText = "结茧中...";
-                heroBody.style.backgroundImage = "url('https://cdn-icons-png.flaticon.com/512/2822/2822461.png')"; // 茧的图标
+                heroBody.style.backgroundImage = "none"; // 移除虫子图
+                heroBody.innerText = "🥚"; // 显示个大蛋
+                heroBody.style.fontSize = "60px";
+                heroBody.style.display = "flex";
+                heroBody.style.justifyContent = "center";
+                heroBody.style.alignItems = "center";
+                
                 heroBody.classList.add('thinking'); // 摇晃
             }, 1000);
 
-            // 2. 化蝶阶段
+            // 阶段2：化蝶
             setTimeout(() => {
                 isButterfly = true;
                 stateText.innerText = "🦋 完全体";
-                heroWrapper.classList.add('butterfly-mode'); // 切换样式
+                
+                // 清理结茧样式
+                heroBody.innerText = "";
+                heroBody.style.display = "block";
                 heroBody.classList.remove('thinking');
+                
+                // 加上蝴蝶样式
+                heroWrapper.classList.add('butterfly-mode'); 
                 
                 showBubble("哇！我有翅膀了！飞呀飞！🦋");
                 isBusy = false;
@@ -384,17 +397,17 @@
             }, 4000);
         }
 
-        // --- 核心功能3：抓萤火虫 (捕食) ---
+        // --- 功能3：抓萤火虫 ---
         function startHunt(e) {
             e.stopPropagation();
             if (isBusy || isButterfly) {
-                 if(isButterfly) showBubble("我现在只喝露水~ 🌸");
+                 if(isButterfly) showBubble("不去不去，那是童年的游戏了~ 🌸");
                  return;
             }
 
             isBusy = true;
-            // 1. 生成随机位置的萤火虫
-            const fx = Math.random() * 80 + 10; // 10% - 90%
+            // 生成随机位置
+            const fx = Math.random() * 80 + 10; 
             const fy = Math.random() * 80 + 10;
             
             firefly.style.left = fx + '%';
@@ -403,31 +416,29 @@
 
             showBubble("发现猎物！冲鸭！🦟");
 
-            // 2. 虫子爬过去
-            // 这里我们模拟一次点击事件来复用移动逻辑，或者手动设置
+            // 移动虫子
             const dx = fx - currentX;
             const dy = fy - currentY;
             const angle = Math.atan2(dy, dx) * (180 / Math.PI);
             heroWrapper.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
             
-            const duration = 1.5; // 捕猎速度固定
+            const duration = 1.5; 
             heroWrapper.style.transition = `top ${duration}s linear, left ${duration}s linear`;
             heroWrapper.style.left = fx + '%';
             heroWrapper.style.top = fy + '%';
             heroWrapper.classList.add('crawling');
 
-            // 3. 结算
+            // 结算
             setTimeout(() => {
                 heroWrapper.classList.remove('crawling');
-                firefly.classList.remove('active'); // 萤火虫消失（被吃了）
+                firefly.classList.remove('active'); 
                 
-                // 概率判定
                 const success = Math.random() > 0.3; // 70% 成功率
                 
                 if (success) {
                     showBubble("抓住你了！好吃！😋");
-                    changeEnergy(40); // 大补
-                    talkToAI("我刚刚抓住了一只萤火虫并且吃掉了它！味道好极了！");
+                    changeEnergy(40);
+                    talkToAI("我刚刚抓住了一只萤火虫吃掉了！味道好极了！");
                 } else {
                     showBubble("哎呀，让它跑了... 💨");
                     talkToAI("我抓萤火虫失败了，好难过...");
@@ -444,8 +455,10 @@
             const text = input.value.trim();
             if(!text) return;
             
-            input.value = '';
+            // 显示用户输入
             showBubble("思考中... 🤔");
+            input.value = '';
+            
             talkToAI(text);
         }
 
@@ -465,15 +478,13 @@
             }
         }
 
-        // 辅助：显示气泡
+        // 辅助工具
         function showBubble(text) {
             bubble.innerText = text;
             bubble.classList.add('show');
-            // 3秒后自动隐藏
             setTimeout(() => bubble.classList.remove('show'), 3500);
         }
 
-        // 辅助：点击波纹
         function createRipple(x, y) {
             const ripple = document.createElement('div');
             ripple.classList.add('ripple');
